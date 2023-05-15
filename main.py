@@ -9,8 +9,8 @@
 # 	    iv. Make velocity/acceleration/displacement/distance/time etc predictions.
 # 	    v. Friction modelled
 # 	    vi. If possible allow GUI models.
-
-import numpy
+# Objective: Make a simulation
+# import numpy
 
 
 def main():
