@@ -14,12 +14,12 @@ class Drag:
         self.weight = np.array([0, -self.mass * self.g])
         self.drag = self.k * np.where(self.velocity <= 0, 1, -1) * (self.velocity ** 2)
         self.resultant_force = self.weight + self.drag
-        self.resultant_acc = self.resultant_force/self.mass
+        # self.resultant_acc = self.resultant_force/self.mass
 
-    def update_resultant_acc(self):
+    def update_resultant_force(self):
         self.drag = self.k * np.where(self.velocity <= 0, 1, -1) * (self.velocity ** 2)
         self.resultant_force = self.weight + self.drag
-        self.resultant_acc = self.resultant_force / self.mass
+        # self.resultant_acc = self.resultant_force / self.mass
 
     def set_velocity(self, velocity):
         self.velocity = velocity

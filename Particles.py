@@ -61,84 +61,48 @@ class Particle:
         return velocity
 
 
-def model_air_resistance_for_projectile():
+def model_air_resistance_for_projectile(wind_force, wind_angle, particle_velocity, time=30, increments=0.1):
+    loops = int(time / increments)
     # Testing model specs
     SpaceX = Space(gravity=9.81)
     car = Particle(space=SpaceX, mass=1.5)
-    car.set_force(15, np.pi)
+    car.set_force(wind_force, wind_angle)
     car.update_acceleration()
-    car.velocity = np.array([13 * (3 ** 0.5), 13.0])
+    car.velocity = particle_velocity
 
     # Running the simulation using the preset model.
     time_against_velocity = np.array([0, car.velocity[0]])  # initialized the array
     distance_against_time = np.array([0, car.position[0]])  # initialized the array
     vertical_against_horizontal = np.array([0, 0])
-    for i in range(1, 30):
-        car.predict_pos_in_time(time_increment=0.1, update_values=True)
+    for i in range(1, loops):
+        car.predict_pos_in_time(time_increment=increments, update_values=True)
         vertical_against_horizontal = np.vstack([vertical_against_horizontal, [car.position[0], car.position[1]]])
         time_against_velocity = np.vstack([time_against_velocity, [0.1 * i, car.velocity[0]]])
         distance_against_time = np.vstack([distance_against_time, [0.1 * i, car.position[0]]])
-        car.set_force(3, np.pi + (-1.5) ** i)
+        # car.set_force(3, np.pi + (-1.5) ** i)
         car.update_acceleration()
 
     # Graphing the outcomes
     fig = plt.figure(figsize=(14, 6))
-    ax1 = fig.add_subplot(1, 3, 1, title="Velocity against Time")
+    ax1 = fig.add_subplot(1, 3, 1, title="Velocity(x) against Time")
     ax1.plot(time_against_velocity[:, 0], time_against_velocity[:, 1])
     ax1.set_xlabel("Time")
-    ax1.set_ylabel("Velocity")
+    ax1.set_ylabel("Velocity(x)")
     plt.grid()
 
-    ax2 = fig.add_subplot(1, 3, 2, title="Displacement against Time")
+    ax2 = fig.add_subplot(1, 3, 2, title="Displacement(x) against Time")
     ax2.plot(distance_against_time[:, 0], distance_against_time[:, 1])
     ax2.set_xlabel("Time")
-    ax2.set_ylabel("Displacement")
+    ax2.set_ylabel("Displacement(x)")
     plt.grid()
 
-    ax3 = fig.add_subplot(1, 3, 3, title="Vertical Against Horizontal")
+    ax3 = fig.add_subplot(1, 3, 3, title="Trajectory")
     ax3.plot(vertical_against_horizontal[:, 0], vertical_against_horizontal[:, 1])
     ax3.set_xlabel("Horizontal")
     ax3.set_ylabel("Vertical")
     plt.grid()
-    plt.show()
 
-
-def model_simple_force_addition():
-    SpaceX = Space(gravity=9.81)
-    shuttle = Particle(space=SpaceX, mass=1.5)
-    shuttle.set_force_by_components(5, 10)
-    shuttle.update_acceleration()
-
-    # Running the simulation using the preset model.
-    time_against_velocity = np.array([0, shuttle.velocity[0]])  # initialized the array
-    distance_against_time = np.array([0, shuttle.position[0]])  # initialized the array
-    vertical_against_horizontal = np.array([0, 0])
-    for i in range(1, 30):
-        shuttle.predict_pos_in_time(time_increment=0.1, update_values=True)
-        vertical_against_horizontal = np.vstack([vertical_against_horizontal, [shuttle.position[0], shuttle.position[1]]])
-        time_against_velocity = np.vstack([time_against_velocity, [0.1 * i, shuttle.velocity[0]]])
-        distance_against_time = np.vstack([distance_against_time, [0.1 * i, shuttle.position[0]]])
-        shuttle.update_acceleration()
-
-        # Graphing the outcomes
-    fig = plt.figure(figsize=(14, 6))
-    ax1 = fig.add_subplot(1, 3, 1, title="Velocity against Time")
-    ax1.plot(time_against_velocity[:, 0], time_against_velocity[:, 1])
-    ax1.set_xlabel("Time")
-    ax1.set_ylabel("Velocity")
-    plt.grid()
-
-    ax2 = fig.add_subplot(1, 3, 2, title="Displacement against Time")
-    ax2.plot(distance_against_time[:, 0], distance_against_time[:, 1])
-    ax2.set_xlabel("Time")
-    ax2.set_ylabel("Displacement")
-    plt.grid()
-
-    ax3 = fig.add_subplot(1, 3, 3, title="Vertical Against Horizontal")
-    ax3.plot(vertical_against_horizontal[:, 0], vertical_against_horizontal[:, 1])
-    ax3.set_xlabel("Horizontal")
-    ax3.set_ylabel("Vertical")
-    plt.grid()
+    plt.subplots_adjust(wspace=0.3)
     plt.show()
 
 
@@ -146,7 +110,7 @@ def photon():
     pass
 
 
-def model_drag(velocity, position, mass, k, time, increments):
+def model_drag(velocity, position, mass, k, time=5, increments=0.01):
     loops = int(time/increments)
     from Drag.main import Drag
     mass = mass
@@ -158,62 +122,81 @@ def model_drag(velocity, position, mass, k, time, increments):
     shuttle.update_acceleration()
 
     # Running the simulation using the preset model.
-    time_against_velocity = np.array([0, shuttle.velocity[0]])  # initialized the array
-    distance_against_time = np.array([0, shuttle.position[0]])  # initialized the array
+    time_against_velocity_x = np.array([0, shuttle.velocity[0]])  # initialized the array
+    distance_against_time_x = np.array([0, shuttle.position[0]])  # initialized the array
     vertical_against_horizontal = shuttle.position
 
-    # New vertical things
+    # New vertical graphs
     time_against_velocity_y = np.array([0, shuttle.velocity[1]])
     distance_against_time_y = np.array([0, shuttle.position[1]])
     for i in range(1, loops):
         shuttle.predict_pos_in_time(time_increment=increments, update_values=True)
         vertical_against_horizontal = np.vstack(
             [vertical_against_horizontal, [shuttle.position[0], shuttle.position[1]]])
-        time_against_velocity = np.vstack([time_against_velocity, [0.1 * i, shuttle.velocity[0]]])
-        distance_against_time = np.vstack([distance_against_time, [0.1 * i, shuttle.position[0]]])
+        time_against_velocity_x = np.vstack([time_against_velocity_x, [0.1 * i, shuttle.velocity[0]]])
+        distance_against_time_x = np.vstack([distance_against_time_x, [0.1 * i, shuttle.position[0]]])
         time_against_velocity_y = np.vstack([time_against_velocity_y, [0.1 * i, shuttle.velocity[1]]])
         distance_against_time_y = np.vstack([distance_against_time_y, [0.1 * i, shuttle.position[1]]])
         shuttle_drag.set_velocity(velocity=shuttle.velocity)
         shuttle_drag.set_position(pos=shuttle.position)
-        shuttle_drag.update_resultant_acc()
+        shuttle_drag.update_resultant_force()
         shuttle.set_force_by_components(shuttle_drag.resultant_force[0], shuttle_drag.resultant_force[1])
         shuttle.update_acceleration()
 
-        # Graphing the outcomes
+    plot_all_graphs(
+            time_against_velocity_x, distance_against_time_x,
+            time_against_velocity_y, distance_against_time_y,
+            vertical_against_horizontal)
+
+
+def plot_all_graphs(
+        time_against_velocity_x, distance_against_time_x,
+        time_against_velocity_y, distance_against_time_y,
+        vertical_against_horizontal):
+    # Graphing the outcomes
     fig = plt.figure(figsize=(12, 8))
-    ax1 = fig.add_subplot(2, 3, 1, title="Velocity(x) against Time")
-    ax1.plot(time_against_velocity[:, 0], time_against_velocity[:, 1])
-    ax1.set_xlabel("Time")
-    ax1.set_ylabel("Velocity")
+    ax1 = fig.add_subplot(3, 2, 1)  # Velocity(x) against Time"
+    ax1.plot(time_against_velocity_x[:, 0], time_against_velocity_x[:, 1])
+    ax1.set_xlabel("Time/s")
+    ax1.set_ylabel(r"Velocity(x)/$ms^{-1}$")
+    plt.axvline(x=0, c="black")
+    plt.axhline(y=0, c="black")
     plt.grid()
 
-    ax2 = fig.add_subplot(2, 3, 2, title="Displacement(x) against Time")
-    ax2.plot(distance_against_time[:, 0], distance_against_time[:, 1])
-    ax2.set_xlabel("Time")
-    ax2.set_ylabel("Displacement")
+    ax2 = fig.add_subplot(3, 2, 2)  # Displacement(x) against Time
+    ax2.plot(distance_against_time_x[:, 0], distance_against_time_x[:, 1])
+    ax2.set_xlabel("Time/s")
+    ax2.set_ylabel("Displacement(x)/m")
+    plt.axvline(x=0, c="black")
+    plt.axhline(y=0, c="black")
     plt.grid()
 
-    ax4 = fig.add_subplot(2, 3, 3, title="Velocity(y) against Time")
+    ax4 = fig.add_subplot(3, 2, 3)  # Velocity(y) against Time
     ax4.plot(time_against_velocity_y[:, 0], time_against_velocity_y[:, 1])
-    ax4.set_xlabel("Time")
-    ax4.set_ylabel("Velocity")
+    ax4.set_xlabel("Time/s")
+    ax4.set_ylabel(r"Velocity(y)/$ms^{-1}$")
+    plt.axvline(x=0, c="black")
+    plt.axhline(y=0, c="black")
     plt.grid()
 
-    ax5 = fig.add_subplot(2, 3, 4, title="Displacement(y) against Time")
+    ax5 = fig.add_subplot(3, 2, 4)  # Displacement(y) against Time
     ax5.plot(distance_against_time_y[:, 0], distance_against_time_y[:, 1])
-    ax5.set_xlabel("Time")
-    ax5.set_ylabel("Displacement")
+    ax5.set_xlabel("Time/s")
+    ax5.set_ylabel("Displacement(y)/m")
+    plt.axvline(x=0, c="black")
+    plt.axhline(y=0, c="black")
     plt.grid()
 
-    ax3 = fig.add_subplot(2, 3, 5, title="Vertical Against Horizontal")
+    ax3 = fig.add_subplot(3, 1, 3, title="Trajectory")  # Vertical Against Horizontal
     ax3.plot(vertical_against_horizontal[:, 0], vertical_against_horizontal[:, 1])
-    ax3.set_xlabel("Horizontal")
-    ax3.set_ylabel("Vertical")
+    ax3.set_xlabel("x/m")
+    ax3.set_ylabel("y/m")
+    plt.axvline(x=0, c="black")
+    plt.axhline(y=0, c="black")
     plt.grid()
 
-    # plt.subplots_adjust(wspace=0.3, hspace=0.3, bottom=1, left=0.11, right=0.96, top=0.95)
+    plt.subplots_adjust(hspace=0.3, top=0.93, bottom=0.08)
     plt.show()
-
 
 # def non_constant_acceleration():
 #     Earth = Space()
@@ -223,10 +206,13 @@ def model_drag(velocity, position, mass, k, time, increments):
 
 
 if __name__ == '__main__':
-    # model_air_resistance_for_projectile()
-    # model_simple_force_addition()
+    # model_air_resistance_for_projectile(
+    #     wind_force=15, wind_angle=np.pi,
+    #     particle_velocity=np.array([15.0, 23.0]),
+    #     time=5, increments=0.01)
+
     model_drag(
-        position=np.array([1, 15]),
-        velocity=np.array([2, 12]),
+        position=np.array([0, 0]),
+        velocity=np.array([12, 6]),
         mass=0.5, k=0.2,
-        time=10, increments=0.1)
+        time=3, increments=0.01)
