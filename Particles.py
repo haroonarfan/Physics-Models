@@ -102,6 +102,10 @@ class Tracker:
         self.vertical_against_horizontal = particle.position
 
     def update(self, time):
+        """
+        :param time: It should be linear
+        :return: None
+        """
         self.vertical_against_horizontal = np.vstack(
             [self.vertical_against_horizontal, [self.particle.position[0], self.particle.position[1]]])
         self.time_against_velocity_x = np.vstack([self.time_against_velocity_x, [time, self.particle.velocity[0]]])
