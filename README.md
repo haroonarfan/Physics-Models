@@ -21,6 +21,7 @@ Below are some projects I did to consolidate my basics.
         > |:------:|:---:|
         > | Weight |  0  |
         > |  Drag  |  1  |
+        > 
         > These **labels** are saved as *strings* in `Particle.forces_labels`
 
 #### Status: `In Progress`
