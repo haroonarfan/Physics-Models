@@ -1,3 +1,5 @@
+import numpy as np
+from Particles import Space, Particle, Tracker
 # Kinematics
 # 1. What do I know?
 # 	 WEP, ConEn, Equations of motions, Tensions, Newton’s 1st 2nd and 3rd law,
@@ -10,12 +12,54 @@
 # 	    v. Friction modelled
 # 	    vi. If possible allow GUI models.
 # Objective: Make a simulation
-# import numpy
 
 
-def main():
+def model_air_resistance_for_projectile(wind_force, wind_angle, particle_velocity, time=30, increments=0.1):
+    loops = int(time / increments)
+    # Testing model specs
+    SpaceX = Space(gravity=9.81)
+    frisbee = Particle(space=SpaceX, mass=1.5)
+    frisbee.add_force(wind_force, wind_angle, label='Wind')
+    frisbee.update_velocity(particle_velocity[0], particle_velocity[1])
+    frisbee_tracker = Tracker(frisbee)
+
+    for i in range(1, loops):
+        frisbee.predict_pos_in_time(time_increment=increments, update_values=True)
+        frisbee_tracker.update(time=i*increments)
+        # car.set_force(3, np.pi + (-1.5) ** i)
+    frisbee_tracker.plot_all_graphs()
+
+
+def model_drag_elegantly(velocity, position, mass, k, time=5, increments=0.01):
+    loops = int(time / increments)
+    SpaceX = Space(gravity=9.81)
+    shuttle = Particle(space=SpaceX, mass=mass, position=position, drag_coefficient=k)
+    shuttle.update_velocity(velocity[0], velocity[1])
+    shuttle_tracker = Tracker(particle=shuttle)
+    for i in range(1, loops):
+        shuttle.predict_pos_in_time(time_increment=increments, update_values=True)
+        shuttle_tracker.update(i*increments)
+    shuttle_tracker.plot_all_graphs()
+
+
+def photon():
     pass
+
+# def non_constant_acceleration():
+#     Earth = Space()
+#     bird = Particle(Earth, mass=0.5)
+#     for i in range(2):
+#         bird.velocity = np.array([])
 
 
 if __name__ == '__main__':
-    main()
+    model_air_resistance_for_projectile(
+        wind_force=15, wind_angle=np.pi,
+        particle_velocity=np.array([15.0, 23.0]),
+        time=5, increments=0.01)
+
+    # model_drag_elegantly(
+    #     position=np.array([0, 0]),
+    #     velocity=np.array([12, 6]),
+    #     mass=0.5, k=0.2,
+    #     time=3, increments=0.01)
