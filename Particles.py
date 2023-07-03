@@ -14,24 +14,23 @@ class Particle:
         :param mass: in kg
         :param position: in (x, y) form.
         """
-        self.space = Space
-        self.gravity = space.gravity
+        self.space = space
         self.mass = mass
         self.position = position
         self.forces = np.array([
-            [0.0, - self.mass * self.gravity],
+            [0.0, - self.mass * self.space.gravity],
             [0.0, 0.0]])  # 1st column = x-axis; 2nd column = y-axis
         self.drag, self.drag_coefficient = np.array([0.0, 0.0]), drag_coefficient
         self.acceleration = np.array([0.0, 0.0])  # 1st column = x-axis; 2nd column = y-axis
         self.velocity = np.array([0.0, 0.0])  # 1st column = x-axis; 2nd column = y-axis
         self.forces_labels = np.array(['Weight', 'Drag'])  # These are in order of occurrences
 
-    def update_drag(self):
+    def update_drag(self) -> None:
         self.drag = self.drag_coefficient * np.where(self.velocity <= 0, 1, -1) * (self.velocity ** 2)
         self.forces[1] = self.drag
         self.update_acceleration()
 
-    def update_velocity(self, vx, vy):
+    def update_velocity(self, vx, vy) -> None:
         self.velocity = np.array([vx, vy])
         self.update_drag()
 
@@ -61,21 +60,21 @@ class Particle:
         np.append(self.forces_labels, label)
         self.update_acceleration()
 
-    def set_force_by_components(self, fx, fy, label='unknown'):  # This over-rides all other forces.
+    def set_force_by_components(self, fx, fy, label='unknown') -> None:  # This over-rides all other forces.
         self.forces[0][0] = fx
         self.forces[0][1] = fy
         self.forces_labels = np.array([label])
         self.update_acceleration()
 
-    def update_acceleration(self):
+    def update_acceleration(self) -> None:
         self.acceleration = self.forces.sum(axis=0)/self.mass
 
-    def update_mass(self, mass):
+    def update_mass(self, mass) -> None:
         self.mass = mass
-        self.forces[0] = [0.0, mass * self.gravity]
+        self.forces[0] = [0.0, mass * self.space.gravity]
         self.update_acceleration()
 
-    def predict_pos_in_time(self, time_increment: float, update_values=False):
+    def predict_pos_in_time(self, time_increment: float, update_values=False) -> np.ndarray:
         position = self.velocity*time_increment + 0.5*(time_increment**2)*self.acceleration
         if update_values:
             self.position = self.position + position
@@ -83,13 +82,20 @@ class Particle:
             self.update_drag()
         return self.position + position
 
-    def predict_velocity_in_time(self, time_increment: float, update_values=False):
+    def predict_velocity_in_time(self, time_increment: float, update_values=False) -> np.ndarray:
         velocity = self.acceleration*time_increment + self.velocity
         if update_values:
             self.velocity = velocity
             self.position = self.predict_pos_in_time(time_increment)
             self.update_drag()
         return velocity
+
+    def print_forces(self) -> None:
+        for i in range(self.forces_labels.shape[0]):
+            print(f"{self.forces_labels[i]:<9s}:", self.forces[i])
+
+    def print_velocity(self) -> None:
+        print(f"Velocity : {self.velocity}")
 
 
 class Tracker:
@@ -101,7 +107,7 @@ class Tracker:
         self.distance_against_time_y = np.array([0, particle.position[1]])
         self.vertical_against_horizontal = particle.position
 
-    def update(self, time):
+    def update(self, time) -> None:
         """
         :param time: It should be linear
         :return: None
@@ -113,7 +119,7 @@ class Tracker:
         self.time_against_velocity_y = np.vstack([self.time_against_velocity_y, [time, self.particle.velocity[1]]])
         self.distance_against_time_y = np.vstack([self.distance_against_time_y, [time, self.particle.position[1]]])
 
-    def plot_all_graphs(self):
+    def plot_all_graphs(self) -> None:
         # Graphing the outcomes
         fig = plt.figure(figsize=(12, 8))
         ax1 = fig.add_subplot(3, 2, 1)  # Velocity(x) against Time

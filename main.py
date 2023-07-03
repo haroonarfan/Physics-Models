@@ -30,16 +30,19 @@ def model_air_resistance_for_projectile(wind_force, wind_angle, particle_velocit
     frisbee_tracker.plot_all_graphs()
 
 
-def model_drag_elegantly(velocity, position, mass, k, time=5, increments=0.01):
+def model_drag(velocity, position, mass, k, time=5, increments=0.01):
     loops = int(time / increments)
     SpaceX = Space(gravity=9.81)
     shuttle = Particle(space=SpaceX, mass=mass, position=position, drag_coefficient=k)
     shuttle.update_velocity(velocity[0], velocity[1])
     shuttle_tracker = Tracker(particle=shuttle)
+
     for i in range(1, loops):
         shuttle.predict_pos_in_time(time_increment=increments, update_values=True)
-        shuttle_tracker.update(i*increments)
+        shuttle_tracker.update(time=i*increments)
     shuttle_tracker.plot_all_graphs()
+    shuttle.print_forces()
+    shuttle.print_velocity()
 
 
 def photon():
@@ -53,13 +56,13 @@ def photon():
 
 
 if __name__ == '__main__':
-    model_air_resistance_for_projectile(
-        wind_force=15, wind_angle=np.pi,
-        particle_velocity=np.array([15.0, 23.0]),
-        time=5, increments=0.01)
+    # model_air_resistance_for_projectile(
+    #     wind_force=15, wind_angle=np.pi,
+    #     particle_velocity=np.array([15.0, 23.0]),
+    #     time=5, increments=0.01)
 
-    # model_drag_elegantly(
-    #     position=np.array([0, 0]),
-    #     velocity=np.array([12, 6]),
-    #     mass=0.5, k=0.2,
-    #     time=3, increments=0.01)
+    model_drag(
+        position=np.array([0, 0]),
+        velocity=np.array([28, 124]),
+        mass=2.5, k=0.3,
+        time=5, increments=0.01)

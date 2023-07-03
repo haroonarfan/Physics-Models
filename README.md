@@ -23,6 +23,9 @@ Below are some projects I did to consolidate my basics.
         > |  Drag  |  1  |
         > 
         > These **labels** are saved as *strings* in `Particle.forces_labels`
+        >
+
+        In the `Collision`, the `Particle` passed as parameters are actually passed as memory address so any change made by the class also changes the variables thus the variable can be declared and changed separately which allows then to manipulated more easily. 
 
 #### Status: `In Progress`
 
